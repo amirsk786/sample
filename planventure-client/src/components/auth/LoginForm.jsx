@@ -11,6 +11,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
+import api from '../../api'; // Adjust the import based on your project structure
 
 const LoginForm = () => {
   const navigate = useNavigate();
@@ -29,10 +30,11 @@ const LoginForm = () => {
     setError('');
 
     try {
-      await login(formData);
+      const response = await api.auth.login(formData);
+      login(response); // This will set the token in AuthContext
       navigate('/dashboard');
-    } catch {
-      setError('Invalid email or password');
+    } catch (err) {
+      setError(err.message || 'Invalid email or password');
     } finally {
       setIsLoading(false);
     }

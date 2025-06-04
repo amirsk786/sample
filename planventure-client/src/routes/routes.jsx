@@ -6,6 +6,7 @@ import DashboardLayout from '../layouts/DashboardLayout';
 import NewTripPage from '../pages/NewTripPage';
 import TripDetailsPage from '../pages/TripDetailsPage';
 import EditTripPage from '../pages/EditTripPage';
+import ProtectedRoute from '../components/routing/ProtectedRoute';
 
 export const publicRoutes = [
   {
@@ -25,7 +26,13 @@ export const publicRoutes = [
 export const protectedRoutes = [
   {
     path: '/dashboard',
-    element: <DashboardLayout><Dashboard /></DashboardLayout>,
+    element: (
+      <ProtectedRoute>
+        <DashboardLayout>
+          <Dashboard />
+        </DashboardLayout>
+      </ProtectedRoute>
+    ),
   },
   {
     path: '/trips',

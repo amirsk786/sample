@@ -1,27 +1,35 @@
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { CircularProgress } from '@mui/material';
+import { Box, CircularProgress } from '@mui/material';
+import PropTypes from 'prop-types';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
   const location = useLocation();
 
-  console.log('ProtectedRoute - Auth State:', { isAuthenticated, loading });
-
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <Box 
+        display="flex" 
+        justifyContent="center" 
+        alignItems="center" 
+        minHeight="100vh"
+      >
         <CircularProgress />
-      </div>
+      </Box>
     );
   }
 
   if (!isAuthenticated) {
-    console.log('Not authenticated, redirecting to login...');
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // Save the attempted URL for redirecting after login
+    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
   return children;
+};
+
+ProtectedRoute.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export default ProtectedRoute;

@@ -8,7 +8,7 @@ export default defineConfig({
     include: /src\/.*\.[jt]sx?$/  //include both .js and .jsx
   },
   optimizeDeps: {
-    include: ['@emotion/styled'],
+    include: ['@emotion/styled', 'axios'],
     esbuild: {
       loader: {
         '.js': 'jsx',
