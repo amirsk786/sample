@@ -3,13 +3,12 @@ import {
   Box, 
   Drawer, 
   List, 
-  ListItem,
-  ListItemButton, 
+  ListItem, 
   ListItemIcon, 
   ListItemText, 
   IconButton,
-  useTheme,
   useMediaQuery,
+  useTheme,
   Divider,
   Typography
 } from '@mui/material';
@@ -17,21 +16,15 @@ import {
   Menu as MenuIcon,
   Dashboard as DashboardIcon,
   Map as MapIcon,
-  ListAlt as ListAltIcon,
-  Settings as SettingsIcon,
+  Add as AddIcon,
+  Person as PersonIcon,
   ChevronLeft as ChevronLeftIcon
 } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
+import PropTypes from 'prop-types';
 import Navbar from '../components/navigation/Navbar';
 
 const DRAWER_WIDTH = 240;
-
-const menuItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
-  { text: 'My Trips', icon: <MapIcon />, path: '/trips' },
-  { text: 'Trip Planner', icon: <ListAltIcon />, path: '/planner' },
-  { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
-];
 
 const DashboardLayout = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -44,16 +37,25 @@ const DashboardLayout = ({ children }) => {
     setMobileOpen(!mobileOpen);
   };
 
+  const menuItems = [
+    { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+    { text: 'My Trips', icon: <MapIcon />, path: '/trips' },
+    { text: 'New Trip', icon: <AddIcon />, path: '/trips/new' },
+    { text: 'Profile', icon: <PersonIcon />, path: '/profile' },
+  ];
+
   const drawer = (
-    <Box>
-      <Box sx={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
-        p: 2
-      }}>
-        <Typography variant="h6" component="div">
-          Planventure
+    <Box sx={{ width: DRAWER_WIDTH }}>
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: 2,
+          justifyContent: 'space-between'
+        }}
+      >
+        <Typography variant="h6" noWrap component="div">
+          Menu
         </Typography>
         {isMobile && (
           <IconButton onClick={handleDrawerToggle}>
@@ -64,36 +66,28 @@ const DashboardLayout = ({ children }) => {
       <Divider />
       <List>
         {menuItems.map((item) => (
-          <ListItemButton
+          <ListItem
+            button
             key={item.text}
             onClick={() => {
               navigate(item.path);
-              if (isMobile) handleDrawerToggle();
+              if (isMobile) setMobileOpen(false);
             }}
-            selected={location.pathname === item.path}
             sx={{
-              '&.Mui-selected': {
-                backgroundColor: 'primary.light',
-                '&:hover': {
-                  backgroundColor: 'primary.light',
-                },
-              },
+              backgroundColor: location.pathname === item.path ? 
+                'action.selected' : 'inherit'
             }}
           >
-            <ListItemIcon sx={{ 
-              color: location.pathname === item.path ? 'primary.main' : 'inherit' 
-            }}>
-              {item.icon}
-            </ListItemIcon>
+            <ListItemIcon>{item.icon}</ListItemIcon>
             <ListItemText primary={item.text} />
-          </ListItemButton>
+          </ListItem>
         ))}
       </List>
     </Box>
   );
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
       <Navbar>
         <IconButton
           color="inherit"
@@ -105,63 +99,67 @@ const DashboardLayout = ({ children }) => {
           <MenuIcon />
         </IconButton>
       </Navbar>
-      
+
       <Box
         component="nav"
-        sx={{ width: { sm: DRAWER_WIDTH }, flexShrink: { sm: 0 } }}
+        sx={{
+          width: { sm: DRAWER_WIDTH },
+          flexShrink: { sm: 0 }
+        }}
       >
         {/* Mobile drawer */}
         <Drawer
           variant="temporary"
           open={mobileOpen}
           onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }}
+          ModalProps={{
+            keepMounted: true // Better open performance on mobile
+          }}
           sx={{
             display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
-              width: DRAWER_WIDTH,
-              height: 'calc(100vh - 56px)', // Subtract footer height
-              marginTop: '64px' // Account for navbar
-            },
+            '& .MuiDrawer-paper': {
+              width: DRAWER_WIDTH
+            }
           }}
         >
           {drawer}
         </Drawer>
-        
+
         {/* Desktop drawer */}
         <Drawer
           variant="permanent"
           sx={{
             display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': { 
-              boxSizing: 'border-box', 
+            '& .MuiDrawer-paper': {
               width: DRAWER_WIDTH,
-              borderRight: '1px solid rgba(0, 0, 0, 0.12)',
-              marginTop: '64px', // Navbar height
-              height: 'calc(100vh - 78px - 58px)', // Subtract navbar (64px) and footer (56px) heights
-              overflowY: 'auto' // Add scrolling for overflow content
-            },
+              boxSizing: 'border-box',
+              position: 'relative',
+              height: '100vh'
+            }
           }}
           open
         >
           {drawer}
         </Drawer>
       </Box>
-      
+
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${DRAWER_WIDTH}px)` },
-          marginTop: '64px'
+          mt: 8
         }}
       >
         {children}
       </Box>
     </Box>
   );
+};
+
+DashboardLayout.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export default DashboardLayout;

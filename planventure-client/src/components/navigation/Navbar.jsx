@@ -1,8 +1,9 @@
 import { AppBar, Toolbar, Button, Box, Typography } from '@mui/material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import PropTypes from 'prop-types';
 
-const Navbar = () => {
+const Navbar = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isAuthenticated, logout } = useAuth();
@@ -14,11 +15,12 @@ const Navbar = () => {
 
   return (
     <AppBar position="fixed">
-      <Toolbar sx={{ justifyContent: 'space-between' }}>
+      <Toolbar>
+        {children}
         <Typography
           variant="h6"
           component="div"
-          sx={{ flexGrow:1, cursor: 'pointer', textAlign: 'left' }}
+          sx={{ flexGrow: 1, cursor: 'pointer', textAlign: 'left' }}
           onClick={() => navigate('/')}
         >
           Planventure
@@ -27,14 +29,14 @@ const Navbar = () => {
         <Box>
           {isAuthenticated ? (
             <>
-              <Button 
-                color="inherit" 
+              <Button
+                color="inherit"
                 onClick={() => navigate('/trips')}
               >
                 My Trips
               </Button>
-              <Button 
-                color="inherit" 
+              <Button
+                color="inherit"
                 onClick={handleLogout}
               >
                 Logout
@@ -43,7 +45,7 @@ const Navbar = () => {
           ) : (
             <>
               {location.pathname !== '/login' && (
-                <Button 
+                <Button
                   color="inherit"
                   onClick={() => navigate('/login')}
                 >
@@ -51,7 +53,7 @@ const Navbar = () => {
                 </Button>
               )}
               {location.pathname !== '/signup' && (
-                <Button 
+                <Button
                   color="inherit"
                   onClick={() => navigate('/signup')}
                 >
@@ -64,6 +66,10 @@ const Navbar = () => {
       </Toolbar>
     </AppBar>
   );
+};
+
+Navbar.propTypes = {
+  children: PropTypes.node,
 };
 
 export default Navbar;

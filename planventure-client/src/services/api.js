@@ -1,54 +1,47 @@
-import axios from 'axios';
-
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-const axiosInstance = axios.create({
-  baseURL: BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
 
 class Api {
   constructor() {
-    this.axios = axiosInstance;
-    
-    // Add response interceptor for handling token expiration
-    this.axios.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (error.response?.status === 401) {
-          localStorage.removeItem('token');
-          window.location.href = '/login';
-        }
-        return Promise.reject(error);
-      }
-    );
+    this.baseUrl = BASE_URL;
   }
 
-  setAuthToken(token) {
-    if (token) {
-      this.axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    } else {
-      delete this.axios.defaults.headers.common['Authorization'];
+  async fetchWithAuth(endpoint, options = {}) {
+    const token = localStorage.getItem('token');
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...options.headers,
+    };
+
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      ...options,
+      headers,
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({
+        message: 'An error occurred'
+      }));
+      throw new Error(error.message || 'Request failed');
     }
+
+    return response.json();
   }
 
-  auth = {
-    login: async (credentials) => {
-      const response = await this.axios.post('/auth/login', credentials);
-      return response.data;
-    },
-    
-    register: async (userData) => {
-      const response = await this.axios.post('/auth/register', userData);
-      return response.data;
-    },
-    
-    verifyToken: async () => {
-      const response = await this.axios.get('/auth/verify');
-      return response.data;
-    }
+  trips = {
+    getAll: () => this.fetchWithAuth('/api/trips'),
+    getById: (id) => this.fetchWithAuth(`/api/trips/${id}`),
+    create: (tripData) => this.fetchWithAuth('/api/trips', {
+      method: 'POST',
+      body: JSON.stringify(tripData),
+    }),
+    update: (id, tripData) => this.fetchWithAuth(`/api/trips/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(tripData),
+    }),
+    delete: (id) => this.fetchWithAuth(`/api/trips/${id}`, {
+      method: 'DELETE',
+    }),
   };
 }
 
