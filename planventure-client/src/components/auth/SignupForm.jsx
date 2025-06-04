@@ -10,13 +10,11 @@ import {
   IconButton
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
-import { useAuth } from '../../context/AuthContext';
 import { Link as RouterLink } from 'react-router-dom';
 import { api } from '../../services/api';
 
 const SignupForm = () => {
   const navigate = useNavigate();
-  const { setIsAuthenticated } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -92,28 +90,20 @@ const SignupForm = () => {
         password: formData.password
       };
 
-      const response = await api.auth.register(userData);
-      console.log('Signup response:', response); // Debug log
+      await api.auth.register(userData);
       
-      // Don't check for accessToken, just redirect after successful registration
+      // Redirect to login with success message
       navigate('/login', { 
-        replace: true,
         state: { 
           message: 'Registration successful! Please log in.',
           email: formData.email
         }
       });
-      
     } catch (err) {
-      console.error('Signup error:', err); // Debug log
       setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
@@ -166,7 +156,7 @@ const SignupForm = () => {
             <InputAdornment position="end">
               <IconButton
                 aria-label="toggle password visibility"
-                onClick={togglePasswordVisibility}
+                onClick={() => setShowPassword(!showPassword)}
                 edge="end"
               >
                 {showPassword ? <VisibilityOff /> : <Visibility />}
