@@ -6,27 +6,66 @@ class Api {
   }
 
   async fetchWithAuth(endpoint, options = {}) {
-    const token = localStorage.getItem('token');
-    const headers = {
-      'Content-Type': 'application/json',
-      ...(token && { Authorization: `Bearer ${token}` }),
-      ...options.headers,
-    };
+    try {
+      console.log(`Making request to: ${this.baseUrl}${endpoint}`);
+      
+      const headers = {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      };
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
-      ...options,
-      headers,
-    });
+      const token = localStorage.getItem('token');
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
 
-    if (!response.ok) {
-      const error = await response.json().catch(() => ({
-        message: 'An error occurred'
-      }));
-      throw new Error(error.message || 'Request failed');
+      const response = await fetch(`${this.baseUrl}${endpoint}`, {
+        ...options,
+        headers,
+        mode: 'cors',
+        credentials: 'include'
+      });
+
+      // Log response details for debugging
+      console.log(`Response status: ${response.status}`);
+      console.log(`Response headers:`, Object.fromEntries(response.headers));
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          message: `HTTP error! status: ${response.status}`
+        }));
+        throw new Error(errorData.message);
+      }
+
+      return response.json();
+    } catch (error) {
+      console.error('API Error:', error);
+      throw error;
     }
-
-    return response.json();
   }
+
+  auth = {
+    login: async (credentials) => {
+      try {
+        console.log('Attempting login with:', { email: credentials.email });
+        return await this.fetchWithAuth('/auth/login', {
+          method: 'POST',
+          body: JSON.stringify(credentials)
+        });
+      } catch (error) {
+        console.error('Login error:', error);
+        throw error;
+      }
+    },
+
+    register: async (userData) => {
+      console.log('Attempting registration with:', { email: userData.email });
+      return this.fetchWithAuth('/auth/register', {
+        method: 'POST',
+        body: JSON.stringify(userData)
+      });
+    }
+  };
 
   trips = {
     getAll: () => this.fetchWithAuth('/api/trips'),
@@ -38,18 +77,7 @@ class Api {
     update: (id, tripData) => this.fetchWithAuth(`/api/trips/${id}`, {
       method: 'PUT',
       body: JSON.stringify(tripData)
-    }),
-    updateAccommodation: (tripId, accommodationData) => 
-      api.fetchWithAuth(`/api/trips/${tripId}/accommodation`, {
-        method: 'PUT',
-        body: JSON.stringify(accommodationData)
-      }),
-    
-    updateTransportation: (tripId, transportationData) => 
-      api.fetchWithAuth(`/api/trips/${tripId}/transportation`, {
-        method: 'PUT',
-        body: JSON.stringify(transportationData)
-      }),
+    })
   };
 }
 

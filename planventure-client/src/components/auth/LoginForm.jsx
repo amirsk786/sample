@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import { useAuth } from '../../context/AuthContext';
-import api from '../../api'; // Adjust the import based on your project structure
+import { api } from '../../services/api';
 
 const LoginForm = () => {
   const navigate = useNavigate();
