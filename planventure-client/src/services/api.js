@@ -37,11 +37,19 @@ class Api {
     }),
     update: (id, tripData) => this.fetchWithAuth(`/api/trips/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(tripData),
+      body: JSON.stringify(tripData)
     }),
-    delete: (id) => this.fetchWithAuth(`/api/trips/${id}`, {
-      method: 'DELETE',
-    }),
+    updateAccommodation: (tripId, accommodationData) => 
+      api.fetchWithAuth(`/api/trips/${tripId}/accommodation`, {
+        method: 'PUT',
+        body: JSON.stringify(accommodationData)
+      }),
+    
+    updateTransportation: (tripId, transportationData) => 
+      api.fetchWithAuth(`/api/trips/${tripId}/transportation`, {
+        method: 'PUT',
+        body: JSON.stringify(transportationData)
+      }),
   };
 }
 

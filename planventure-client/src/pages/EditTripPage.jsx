@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Box, Alert, Button, Skeleton } from '@mui/material';
+import { Container, CircularProgress, Alert } from '@mui/material';
+import { useParams } from 'react-router-dom';
 import EditTripForm from '../components/trips/EditTripForm';
-import { tripService } from '../services/tripService';
+import { api } from '../services/api';
 
 const EditTripPage = () => {
   const { tripId } = useParams();
-  const navigate = useNavigate();
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,13 +13,10 @@ const EditTripPage = () => {
   useEffect(() => {
     const fetchTrip = async () => {
       try {
-        const response = await tripService.getTrip(tripId);
-        if (!response || !response.trip) {
-          throw new Error('Trip not found');
-        }
-        setTrip(response.trip);
-      } catch (err) {
-        setError(err.message);
+        const data = await api.trips.getById(tripId);
+        setTrip(data);
+      } catch (error) {
+        setError(error.message || 'Failed to fetch trip details');
       } finally {
         setLoading(false);
       }
@@ -31,34 +27,40 @@ const EditTripPage = () => {
 
   if (loading) {
     return (
-      <Box sx={{ maxWidth: 600, mx: 'auto', p: 3 }}>
-        <Skeleton variant="rectangular" height={400} />
-      </Box>
+      <Container sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+        <CircularProgress />
+      </Container>
     );
   }
 
   if (error) {
     return (
-      <Box sx={{ maxWidth: 600, mx: 'auto', p: 3 }}>
-        <Alert 
-          severity="error"
-          action={
-            <Button color="inherit" size="small" onClick={() => navigate('/dashboard')}>
-              Back to Dashboard
-            </Button>
-          }
-        >
+      <Container>
+        <Alert severity="error" sx={{ mt: 4 }}>
           {error}
         </Alert>
-      </Box>
+      </Container>
     );
   }
 
   if (!trip) {
-    return null;
+    return (
+      <Container>
+        <Alert severity="error" sx={{ mt: 4 }}>
+          Trip not found
+        </Alert>
+      </Container>
+    );
   }
 
-  return <EditTripForm trip={trip} />;
+  return (
+    <Container maxWidth="lg">
+      <EditTripForm 
+        trip={trip} 
+        onUpdate={(updatedTrip) => setTrip({ ...trip, ...updatedTrip })}
+      />
+    </Container>
+  );
 };
 
 export default EditTripPage;

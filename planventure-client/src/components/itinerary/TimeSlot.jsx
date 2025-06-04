@@ -6,116 +6,119 @@ import {
   Card,
   CardContent,
   Typography,
-  Stack,
-  MenuItem
 } from '@mui/material';
 import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Save as SaveIcon,
-  Cancel as CancelIcon,
-  AccessTime as TimeIcon,
-  Place as PlaceIcon
+  Cancel as CancelIcon
 } from '@mui/icons-material';
+import PropTypes from 'prop-types';
 
-const TimeSlot = ({ slot, onUpdate, onDelete }) => {
+const TimeSlot = ({ 
+  timeSlot, 
+  onUpdate, 
+  onDelete 
+}) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedSlot, setEditedSlot] = useState(slot);
+  const [editedData, setEditedData] = useState({
+    time: timeSlot.time,
+    activity: timeSlot.activity,
+    location: timeSlot.location
+  });
 
   const handleSave = () => {
-    onUpdate(editedSlot);
+    onUpdate(timeSlot.id, editedData);
     setIsEditing(false);
   };
 
   const handleCancel = () => {
-    setEditedSlot(slot);
+    setEditedData({
+      time: timeSlot.time,
+      activity: timeSlot.activity,
+      location: timeSlot.location
+    });
     setIsEditing(false);
   };
 
   if (isEditing) {
     return (
-      <Card variant="outlined" sx={{ mb: 1 }}>
+      <Card sx={{ mb: 2 }}>
         <CardContent>
-          <Stack spacing={2}>
+          <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
             <TextField
-              fullWidth
               label="Time"
               type="time"
-              value={editedSlot.time}
-              onChange={(e) => setEditedSlot({ ...editedSlot, time: e.target.value })}
+              value={editedData.time}
+              onChange={(e) => setEditedData({ ...editedData, time: e.target.value })}
               InputLabelProps={{ shrink: true }}
-            />
-            <TextField
-              fullWidth
-              label="Activity"
-              value={editedSlot.activity}
-              onChange={(e) => setEditedSlot({ ...editedSlot, activity: e.target.value })}
+              sx={{ width: 150 }}
             />
             <TextField
               fullWidth
               label="Location"
-              value={editedSlot.location}
-              onChange={(e) => setEditedSlot({ ...editedSlot, location: e.target.value })}
+              value={editedData.location}
+              onChange={(e) => setEditedData({ ...editedData, location: e.target.value })}
             />
-            <TextField
-              select
-              fullWidth
-              label="Type"
-              value={editedSlot.type}
-              onChange={(e) => setEditedSlot({ ...editedSlot, type: e.target.value })}
-            >
-              <MenuItem value="activity">Activity</MenuItem>
-              <MenuItem value="transportation">Transportation</MenuItem>
-              <MenuItem value="accommodation">Accommodation</MenuItem>
-              <MenuItem value="food">Food</MenuItem>
-            </TextField>
-            <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-              <IconButton onClick={handleCancel} color="error" size="small">
-                <CancelIcon />
-              </IconButton>
-              <IconButton onClick={handleSave} color="success" size="small">
-                <SaveIcon />
-              </IconButton>
-            </Box>
-          </Stack>
+          </Box>
+          <TextField
+            fullWidth
+            label="Activity"
+            multiline
+            rows={2}
+            value={editedData.activity}
+            onChange={(e) => setEditedData({ ...editedData, activity: e.target.value })}
+            sx={{ mb: 2 }}
+          />
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+            <IconButton onClick={handleCancel} color="error">
+              <CancelIcon />
+            </IconButton>
+            <IconButton onClick={handleSave} color="primary">
+              <SaveIcon />
+            </IconButton>
+          </Box>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card variant="outlined" sx={{ mb: 1 }}>
+    <Card sx={{ mb: 2 }}>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <Stack spacing={1} sx={{ flex: 1 }}>
-            <Typography variant="subtitle1" component="div">
-              {slot.activity}
-            </Typography>
-            <Stack direction="row" spacing={2} color="text.secondary">
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                <TimeIcon fontSize="small" />
-                <Typography variant="body2">{slot.time}</Typography>
-              </Box>
-              {slot.location && (
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                  <PlaceIcon fontSize="small" />
-                  <Typography variant="body2">{slot.location}</Typography>
-                </Box>
-              )}
-            </Stack>
-          </Stack>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+          <Typography variant="subtitle1" color="primary">
+            {timeSlot.time}
+          </Typography>
           <Box>
-            <IconButton onClick={() => setIsEditing(true)} size="small">
+            <IconButton size="small" onClick={() => setIsEditing(true)}>
               <EditIcon />
             </IconButton>
-            <IconButton onClick={() => onDelete(slot.id)} color="error" size="small">
+            <IconButton size="small" onClick={() => onDelete(timeSlot.id)} color="error">
               <DeleteIcon />
             </IconButton>
           </Box>
         </Box>
+        <Typography variant="body1" gutterBottom>
+          {timeSlot.location}
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          {timeSlot.activity}
+        </Typography>
       </CardContent>
     </Card>
   );
+};
+
+TimeSlot.propTypes = {
+  timeSlot: PropTypes.shape({
+    id: PropTypes.string.isRequired,
+    time: PropTypes.string.isRequired,
+    activity: PropTypes.string.isRequired,
+    location: PropTypes.string.isRequired
+  }).isRequired,
+  onUpdate: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired
 };
 
 export default TimeSlot;

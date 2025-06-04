@@ -1,89 +1,130 @@
 import { useState } from 'react';
 import {
   Box,
-  Paper,
   Typography,
-  IconButton,
   Button,
-  Collapse,
-  Divider
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Paper
 } from '@mui/material';
-import {
-  ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon,
-  Add as AddIcon
-} from '@mui/icons-material';
+import { Add as AddIcon } from '@mui/icons-material';
 import TimeSlot from './TimeSlot';
+import PropTypes from 'prop-types';
 import dayjs from 'dayjs';
 
-const ItineraryDay = ({ date, slots = [], onAddSlot, onUpdateSlot, onDeleteSlot }) => {
-  const [isExpanded, setIsExpanded] = useState(true);
+const ItineraryDay = ({ 
+  date,
+  timeSlots,
+  onAddTimeSlot,
+  onUpdateTimeSlot,
+  onDeleteTimeSlot
+}) => {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newTimeSlot, setNewTimeSlot] = useState({
+    time: '09:00',
+    activity: '',
+    location: ''
+  });
 
-  const handleAddSlot = () => {
-    const newSlot = {
-      id: Date.now(),
-      time: '12:00',
+  const handleAddTimeSlot = () => {
+    onAddTimeSlot(date, newTimeSlot);
+    setNewTimeSlot({
+      time: '09:00',
       activity: '',
-      location: '',
-      type: 'activity'
-    };
-    onAddSlot(date, newSlot);
+      location: ''
+    });
+    setIsDialogOpen(false);
   };
 
-  const sortedSlots = [...slots].sort((a, b) => a.time.localeCompare(b.time));
+  const sortedTimeSlots = [...timeSlots].sort((a, b) => 
+    a.time.localeCompare(b.time)
+  );
 
   return (
-    <Paper elevation={1} sx={{ mb: 2, overflow: 'hidden' }}>
-      <Box
-        sx={{
-          p: 2,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          bgcolor: 'primary.light',
-          cursor: 'pointer'
-        }}
-        onClick={() => setIsExpanded(!isExpanded)}
-      >
+    <Paper sx={{ p: 3, mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
         <Typography variant="h6">
           {dayjs(date).format('dddd, MMMM D')}
         </Typography>
-        <IconButton size="small">
-          {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-        </IconButton>
+        <Button
+          startIcon={<AddIcon />}
+          onClick={() => setIsDialogOpen(true)}
+        >
+          Add Activity
+        </Button>
       </Box>
-      
-      <Collapse in={isExpanded}>
-        <Box sx={{ p: 2 }}>
-          {sortedSlots.length === 0 ? (
-            <Typography 
-              color="text.secondary" 
-              sx={{ textAlign: 'center', py: 2 }}
-            >
-              No activities planned for this day yet.
-            </Typography>
-          ) : (
-            sortedSlots.map((slot) => (
-              <TimeSlot
-                key={slot.id}
-                slot={slot}
-                onUpdate={(updatedSlot) => onUpdateSlot(date, updatedSlot)}
-                onDelete={() => onDeleteSlot(date, slot.id)}
-              />
-            ))
-          )}
-          
-          <Button
-            startIcon={<AddIcon />}
-            onClick={handleAddSlot}
-            sx={{ mt: 2 }}
+
+      {sortedTimeSlots.map((timeSlot) => (
+        <TimeSlot
+          key={timeSlot.id}
+          timeSlot={timeSlot}
+          onUpdate={(id, data) => onUpdateTimeSlot(date, id, data)}
+          onDelete={(id) => onDeleteTimeSlot(date, id)}
+        />
+      ))}
+
+      {timeSlots.length === 0 && (
+        <Typography color="text.secondary" textAlign="center" py={3}>
+          No activities planned for this day
+        </Typography>
+      )}
+
+      <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
+        <DialogTitle>Add New Activity</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 1 }}>
+            <TextField
+              label="Time"
+              type="time"
+              value={newTimeSlot.time}
+              onChange={(e) => setNewTimeSlot({ ...newTimeSlot, time: e.target.value })}
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="Location"
+              value={newTimeSlot.location}
+              onChange={(e) => setNewTimeSlot({ ...newTimeSlot, location: e.target.value })}
+            />
+            <TextField
+              label="Activity"
+              multiline
+              rows={3}
+              value={newTimeSlot.activity}
+              onChange={(e) => setNewTimeSlot({ ...newTimeSlot, activity: e.target.value })}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+          <Button 
+            onClick={handleAddTimeSlot}
+            variant="contained"
+            disabled={!newTimeSlot.activity || !newTimeSlot.location}
           >
-            Add Activity
+            Add
           </Button>
-        </Box>
-      </Collapse>
+        </DialogActions>
+      </Dialog>
     </Paper>
   );
+};
+
+ItineraryDay.propTypes = {
+  date: PropTypes.string.isRequired,
+  timeSlots: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      time: PropTypes.string.isRequired,
+      activity: PropTypes.string.isRequired,
+      location: PropTypes.string.isRequired
+    })
+  ).isRequired,
+  onAddTimeSlot: PropTypes.func.isRequired,
+  onUpdateTimeSlot: PropTypes.func.isRequired,
+  onDeleteTimeSlot: PropTypes.func.isRequired
 };
 
 export default ItineraryDay;

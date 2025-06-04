@@ -1,46 +1,39 @@
-import {
-  Box,
-  Typography,
-  Button,
-  Paper,
-  Stack
-} from '@mui/material';
-import { PostAdd as PostAddIcon, AutoAwesome as AutoAwesomeIcon } from '@mui/icons-material';
+import { Box, Typography, Button } from '@mui/material';
+import { Add as AddIcon } from '@mui/icons-material';
+import PropTypes from 'prop-types';
 
-const EmptyItinerary = ({ onCreateEmpty, onUseTemplate }) => {
+const EmptyItinerary = ({ onCreateItinerary }) => {
   return (
-    <Paper 
-      sx={{ 
-        p: 4, 
+    <Box
+      sx={{
         textAlign: 'center',
-        bgcolor: 'background.default' 
+        py: 8,
+        px: 2,
+        bgcolor: 'background.paper',
+        borderRadius: 2,
+        boxShadow: 1
       }}
     >
-      <Typography variant="h6" gutterBottom>
-        Start Planning Your Trip
+      <Typography variant="h5" gutterBottom>
+        No Itinerary Yet
       </Typography>
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
-        Create an itinerary to organize your daily activities, meals, and travel arrangements.
+      <Typography color="text.secondary" paragraph>
+        Start planning your trip by creating an itinerary with daily activities.
       </Typography>
-      
-      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} justifyContent="center">
-        <Button
-          variant="outlined"
-          startIcon={<PostAddIcon />}
-          onClick={onCreateEmpty}
-        >
-          Start from Scratch
-        </Button>
-        <Button
-          variant="contained"
-          startIcon={<AutoAwesomeIcon />}
-          onClick={onUseTemplate}
-        >
-          Use Template
-        </Button>
-      </Stack>
-    </Paper>
+      <Button
+        variant="contained"
+        startIcon={<AddIcon />}
+        onClick={onCreateItinerary}
+        size="large"
+      >
+        Create Itinerary
+      </Button>
+    </Box>
   );
+};
+
+EmptyItinerary.propTypes = {
+  onCreateItinerary: PropTypes.func.isRequired
 };
 
 export default EmptyItinerary;
