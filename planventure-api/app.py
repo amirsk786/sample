@@ -13,11 +13,12 @@ load_dotenv()
 # Initialize SQLAlchemy
 db = SQLAlchemy()
 
+
 def create_app():
     app = Flask(__name__)
-    
+
     # Configure CORS
-    CORS(app, 
+    CORS(app,
          resources={r"/*": {
              "origins": Config.CORS_ORIGINS,
              "methods": Config.CORS_METHODS,
@@ -26,7 +27,8 @@ def create_app():
          }})
 
     # JWT Configuration
-    app.config['JWT_SECRET_KEY'] = environ.get('JWT_SECRET_KEY', 'your-secret-key')
+    app.config['JWT_SECRET_KEY'] = environ.get(
+        'JWT_SECRET_KEY', 'your-secret-key')
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
     jwt = JWTManager(app)
 
@@ -52,12 +54,13 @@ def create_app():
         }), 401
 
     # Database configuration
-    app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DATABASE_URL', 'sqlite:///planventure.db')
+    app.config['SQLALCHEMY_DATABASE_URI'] = environ.get(
+        'DATABASE_URL', 'sqlite:///planventure.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Initialize extensions
     db.init_app(app)
-    
+
     # Register blueprints
     from routes.auth import auth_bp
     from routes.trips import trips_bp
@@ -74,6 +77,7 @@ def create_app():
         return jsonify({"status": "healthy"})
 
     return app
+
 
 if __name__ == '__main__':
     app = create_app()

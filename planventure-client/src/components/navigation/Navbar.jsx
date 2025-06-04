@@ -8,8 +8,8 @@ const Navbar = () => {
   const { isAuthenticated, logout } = useAuth();
 
   const handleLogout = () => {
-    logout();
-    navigate('/');
+    logout(); // Call the logout function from AuthContext
+    navigate('/'); // Redirect to home page after logout
   };
 
   return (
