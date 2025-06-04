@@ -1,6 +1,7 @@
 import { Box, Container } from '@mui/material';
 import Navbar from '../components/navigation/Navbar';
 import Footer from '../components/navigation/Footer';
+import PropTypes from 'prop-types';
 
 const AuthLayout = ({ children }) => {
   return (
@@ -46,6 +47,11 @@ const AuthLayout = ({ children }) => {
       <Footer />
     </Box>
   );
+};
+
+
+AuthLayout.propTypes = {
+  children: PropTypes.node.isRequired,
 };
 
 export default AuthLayout;

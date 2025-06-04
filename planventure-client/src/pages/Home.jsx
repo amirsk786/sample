@@ -1,53 +1,36 @@
-import { Box, Button, Container, Typography } from '@mui/material';
+import { Box, Typography, Button, Container } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import planventureLogo from '../assets/planventure-logo.svg';
+import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
 
   return (
-    <Container maxWidth="sm">
-      <Box 
+    <Container>
+      <Box
         sx={{
+          minHeight: '80vh',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          py: 4,
+          justifyContent: 'center',
+          textAlign: 'center',
+          gap: 4
         }}
       >
-        <img 
-          src={planventureLogo} 
-          alt="Planventure Logo"
-          style={{
-            height: '200px',
-            marginBottom: '2rem'
-          }}
-        />
-        <Typography 
-          variant="h3" 
-          component="h1"
-          sx={{ 
-            mb: 2, 
-            textAlign: 'center',
-            color: 'secondary.main'
-          }}
-        >
+        <Typography variant="h2" component="h1" gutterBottom>
           Welcome to Planventure
         </Typography>
-        <Typography 
-          variant="body1"
-          sx={{ 
-            mb: 2, 
-            textAlign: 'center',
-            color: 'secondary.light'
-          }}
-        >
-          Your next adventure begins here. Start planning unforgettable trips with our intuitive planning tools and make every journey memorable.
+        
+        <Typography variant="h5" color="text.secondary" paragraph>
+          Plan your next adventure with ease
         </Typography>
-        <Button 
-          variant="contained" 
+
+        <Button
+          variant="contained"
           size="large"
-          onClick={() => navigate('/login')}
+          onClick={() => navigate(isAuthenticated ? '/trips' : '/login')}
           sx={{ mt: 2 }}
         >
           Get Started
