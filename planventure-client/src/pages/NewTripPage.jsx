@@ -3,7 +3,7 @@ import NewTripForm from '../components/trips/NewTripForm';
 
 const NewTripPage = () => {
   return (
-    <Container>
+    <Container maxWidth="lg">
       <NewTripForm />
     </Container>
   );

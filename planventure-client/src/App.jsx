@@ -4,35 +4,39 @@ import ProtectedRoute from './components/routing/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import { publicRoutes, protectedRoutes } from './routes/routes';
 import './App.css';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <MainLayout>
-          <Routes>
-            {publicRoutes.map((route) => (
-              <Route 
-                key={route.path}
-                path={route.path}
-                element={route.element}
-              />
-            ))}
-            
-            {protectedRoutes.map((route) => (
-              <Route
-                key={route.path}
-                path={route.path}
-                element={
-                  <ProtectedRoute>
-                    {route.element}
-                  </ProtectedRoute>
-                }
-              />
-            ))}
-          </Routes>
-        </MainLayout>
-      </Router>
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Router>
+          <MainLayout>
+            <Routes>
+              {publicRoutes.map((route) => (
+                <Route 
+                  key={route.path}
+                  path={route.path}
+                  element={route.element}
+                />
+              ))}
+              
+              {protectedRoutes.map((route) => (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={
+                    <ProtectedRoute>
+                      {route.element}
+                    </ProtectedRoute>
+                  }
+                />
+              ))}
+            </Routes>
+          </MainLayout>
+        </Router>
+      </LocalizationProvider>
     </AuthProvider>
   );
 }

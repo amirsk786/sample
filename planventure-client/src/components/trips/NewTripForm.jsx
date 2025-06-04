@@ -3,48 +3,51 @@ import {
   Box, 
   TextField, 
   Button, 
-  Typography, 
-  Alert,
-  Paper
+  Typography,
+  Alert
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
-import { tripService } from '../../services/tripService';
+import { api } from '../../services/api';
 
 const NewTripForm = () => {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [formData, setFormData] = useState({
-    title: '',
     destination: '',
     startDate: dayjs(),
-    endDate: dayjs().add(7, 'day')
+    endDate: dayjs().add(7, 'day'),
+    description: ''
   });
+  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setIsLoading(true);
 
     try {
+      // Validate dates
+      if (formData.endDate.isBefore(formData.startDate)) {
+        throw new Error('End date cannot be before start date');
+      }
+
       const tripData = {
-        title: formData.title,
         destination: formData.destination,
-        start_date: formData.startDate.format('YYYY-MM-DD'),
-        end_date: formData.endDate.format('YYYY-MM-DD'),
-        status: 'Upcoming'
+        startDate: formData.startDate.format('YYYY-MM-DD'),
+        endDate: formData.endDate.format('YYYY-MM-DD'),
+        description: formData.description
       };
 
-      const response = await tripService.createTrip(tripData);
-      navigate('/dashboard');
+      await api.trips.create(tripData);
+      navigate('/trips');
     } catch (err) {
       setError(err.message || 'Failed to create trip');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -56,31 +59,23 @@ const NewTripForm = () => {
     }));
   };
 
-  const isDateRangeValid = () => {
-    return formData.endDate.isAfter(formData.startDate) || 
-           formData.endDate.isSame(formData.startDate);
-  };
-
-  const isFormValid = () => {
-    return formData.title && 
-           formData.destination && 
-           isDateRangeValid() &&
-           !loading;
-  };
-
   return (
-    <Paper elevation={2} sx={{ p: 4, maxWidth: 600, mx: 'auto', mt: 4 }}>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Box
         component="form"
         onSubmit={handleSubmit}
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 3
+          maxWidth: 600,
+          mx: 'auto',
+          mt: 4,
+          p: 3,
+          borderRadius: 2,
+          bgcolor: 'background.paper',
+          boxShadow: 1
         }}
       >
         <Typography variant="h5" component="h1" gutterBottom>
-          Plan a New Trip
+          Plan New Trip
         </Typography>
 
         {error && (
@@ -91,72 +86,69 @@ const NewTripForm = () => {
 
         <TextField
           fullWidth
-          label="Trip Title"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-        />
-
-        <TextField
-          fullWidth
           label="Destination"
           name="destination"
           value={formData.destination}
           onChange={handleChange}
           required
+          sx={{ mb: 3 }}
         />
 
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
           <DatePicker
             label="Start Date"
             value={formData.startDate}
             onChange={(newValue) => {
-              setFormData(prev => ({ ...prev, startDate: newValue }));
+              setFormData(prev => ({
+                ...prev,
+                startDate: newValue
+              }));
             }}
-            minDate={dayjs()}
-            slotProps={{
-              textField: { fullWidth: true }
-            }}
+            sx={{ flex: 1 }}
           />
-
+          
           <DatePicker
             label="End Date"
             value={formData.endDate}
             onChange={(newValue) => {
-              setFormData(prev => ({ ...prev, endDate: newValue }));
+              setFormData(prev => ({
+                ...prev,
+                endDate: newValue
+              }));
             }}
-            minDate={formData.startDate}
-            slotProps={{
-              textField: { 
-                fullWidth: true,
-                error: !isDateRangeValid(),
-                helperText: !isDateRangeValid() ? 'End date must be after start date' : ''
-              }
-            }}
-          />
-        </LocalizationProvider>
-
-        <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
-          <Button
-            type="button"
-            variant="outlined"
-            onClick={() => navigate('/dashboard')}
             sx={{ flex: 1 }}
+          />
+        </Box>
+
+        <TextField
+          fullWidth
+          label="Description"
+          name="description"
+          value={formData.description}
+          onChange={handleChange}
+          multiline
+          rows={4}
+          sx={{ mb: 3 }}
+        />
+
+        <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+          <Button
+            variant="outlined"
+            onClick={() => navigate('/trips')}
+            disabled={isLoading}
           >
             Cancel
           </Button>
           <Button
             type="submit"
             variant="contained"
-            disabled={!isFormValid()}
-            sx={{ flex: 1 }}
+            disabled={isLoading}
           >
-            {loading ? 'Creating...' : 'Create Trip'}
+            {isLoading ? 'Creating...' : 'Create Trip'}
           </Button>
         </Box>
       </Box>
-    </Paper>
+    </LocalizationProvider>
   );
 };
 
